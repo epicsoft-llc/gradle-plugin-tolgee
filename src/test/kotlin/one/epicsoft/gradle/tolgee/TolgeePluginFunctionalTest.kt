@@ -131,6 +131,23 @@ class TolgeePluginFunctionalTest {
     }
 
     @Test
+    fun `pull and verify can be requested in one invocation`() {
+        // Verification reads what the download writes. Without an ordering rule
+        // Gradle refuses the build ("uses this output ... without declaring a
+        // dependency") — and the order would be arbitrary anyway.
+        writeBuildFile()
+
+        val result = run("pullTranslations", "verifyTranslations")
+
+        assertEquals(TaskOutcome.SUCCESS, result.task(":pullTranslations")?.outcome)
+        assertEquals(TaskOutcome.SUCCESS, result.task(":verifyTranslations")?.outcome)
+        assertTrue(
+            result.output.indexOf("Tolgee: de") < result.output.indexOf("all translated in"),
+            "the download must run before the verification: " + result.output,
+        )
+    }
+
+    @Test
     fun `verify passes when every key is translated in the fallback language`() {
         writeBuildFile()
         translationFile("de").also { it.parentFile.mkdirs() }.writeText("""{"a.key":"Eins"}""")
@@ -176,7 +193,12 @@ class TolgeePluginFunctionalTest {
         )
     }
 
-    private fun run(task: String) = runWith(task, "--stacktrace")
+    private fun run(vararg tasks: String) = GradleRunner.create()
+        .withProjectDir(projectDir)
+        .withPluginClasspath()
+        .withEnvironment(environmentWith(TOKEN_ENV, TOKEN))
+        .withArguments(tasks.toList() + "--stacktrace")
+        .build()
 
     private fun runWith(task: String, vararg arguments: String) = GradleRunner.create()
         .withProjectDir(projectDir)
