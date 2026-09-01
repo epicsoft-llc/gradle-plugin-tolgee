@@ -26,7 +26,7 @@ class TolgeePlugin : Plugin<Project> {
         // variable is read when the task runs, not while the build is configured.
         val apiKey: Provider<String> = extension.apiKeyEnv.flatMap { project.providers.environmentVariable(it) }
 
-        project.tasks.register(PULL_TASK, PullTranslationsTask::class.java) { task ->
+        val pull = project.tasks.register(PULL_TASK, PullTranslationsTask::class.java) { task ->
             task.group = I18N_GROUP
             task.description = "Downloads the translations of a Tolgee project into flat JSON files."
             task.url.set(extension.url)
@@ -45,6 +45,13 @@ class TolgeePlugin : Plugin<Project> {
             task.languages.set(extension.languages)
             task.outputDir.set(extension.outputDir)
             task.fallbackLanguage.set(extension.fallbackLanguage)
+            // Verification reads the directory the download writes. Ordering only,
+            // never dependsOn: verifying must stay offline, and forcing a download
+            // on every check is exactly what this plugin avoids elsewhere. Without
+            // this, asking for both tasks in one invocation fails validation with
+            // "uses this output of task ':pullTranslations' without declaring a
+            // dependency" — the order would otherwise be arbitrary.
+            task.mustRunAfter(pull)
         }
     }
 

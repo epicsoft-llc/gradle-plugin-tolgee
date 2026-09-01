@@ -4,6 +4,14 @@ All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 the versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2026-09-01
+
+### Fixed
+- `verifyTranslations` and `pullTranslations` can be requested in the same invocation. Verification
+  reads the directory the download writes, which Gradle rejected as an undeclared dependency; the
+  verification task is now ordered after the download with `mustRunAfter`. Ordering only — verifying
+  stays offline and never triggers a download.
+
 ## [1.0.0] - 2026-09-01
 
 ### Added

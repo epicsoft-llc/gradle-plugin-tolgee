@@ -32,7 +32,7 @@ pluginManagement {
 ```groovy
 // build.gradle
 plugins {
-  id "one.epicsoft.tolgee" version "1.0.0"
+  id "one.epicsoft.tolgee" version "1.0.1"
 }
 
 tolgee {
@@ -95,6 +95,10 @@ Downloads one file per language, in parallel, and writes them as flat JSON sorte
 Reads the committed files and fails when a key has no value in `fallbackLanguage`. The key universe is
 the union over all configured languages, so a key that is missing from the fallback file entirely is
 caught as well as one that is present but empty. No network access.
+
+Asking for both tasks in one invocation works: verification is ordered after the download
+(`mustRunAfter`, not `dependsOn`), so the two never race, and verifying alone still never touches the
+network.
 
 ---
 
