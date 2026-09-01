@@ -152,7 +152,11 @@ src/main/kotlin/one/epicsoft/gradle/tolgee/
 1. Raise `version` in `gradle.properties`
 2. Update the version in this README (plugin block above)
 3. Add a `CHANGELOG.md` entry
-4. Push a tag `X.Y.Z` — no leading `v`; the CI publishes that version
+4. Merge `develop` into `main`
+5. Tag that commit on `main` with `X.Y.Z` — no leading `v` — and push the tag;
+   the CI publishes that version
+
+Work happens on `develop`; `main` carries what is released, and every tag sits on `main`.
 
 ### Optional package mirror
 
