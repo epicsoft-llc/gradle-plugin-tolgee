@@ -4,6 +4,13 @@ All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 the versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.2] - 2026-09-01
+
+### Fixed
+- A missing `url`, `projectId`, `languages` or `outputDir` now produces the plugin's own message,
+  naming the setting and an example value. Gradle's generic "property doesn't have a configured
+  value" fired first and hid it.
+
 ## [1.0.1] - 2026-09-01
 
 ### Fixed

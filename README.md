@@ -32,7 +32,7 @@ pluginManagement {
 ```groovy
 // build.gradle
 plugins {
-  id "one.epicsoft.tolgee" version "1.0.1"
+  id "one.epicsoft.tolgee" version "1.0.2"
 }
 
 tolgee {

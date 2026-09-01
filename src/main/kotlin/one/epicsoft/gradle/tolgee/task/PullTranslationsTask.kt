@@ -39,10 +39,15 @@ import java.util.concurrent.Executors
 @DisableCachingByDefault(because = "Talks to a remote service; the result cannot be cached meaningfully")
 abstract class PullTranslationsTask : DefaultTask() {
 
+    // @Optional on purpose: Gradle's own "property 'url' doesn't have a
+    // configured value" would fire first and hide the message below, which names
+    // the block and an example value.
     @get:Input
+    @get:Optional
     abstract val url: Property<String>
 
     @get:Input
+    @get:Optional
     abstract val projectId: Property<Int>
 
     @get:Input
@@ -50,9 +55,11 @@ abstract class PullTranslationsTask : DefaultTask() {
     abstract val tag: Property<String>
 
     @get:Input
+    @get:Optional
     abstract val languages: ListProperty<String>
 
     @get:OutputDirectory
+    @get:Optional
     abstract val outputDir: DirectoryProperty
 
     /**
