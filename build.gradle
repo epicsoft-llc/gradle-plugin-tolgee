@@ -1,0 +1,68 @@
+plugins {
+  id "java-gradle-plugin"
+  // Must match the Kotlin version bundled with the Gradle wrapper in use
+  // (Gradle 9.5.1 ships Kotlin 2.3.20). A mismatch fails the build with
+  // "incompatible version of Kotlin".
+  id "org.jetbrains.kotlin.jvm" version "2.3.20"
+  id "maven-publish"
+}
+
+group = "one.epicsoft"
+
+gradlePlugin {
+  plugins {
+    create("tolgee") {
+      id = "one.epicsoft.tolgee"
+      displayName = "Epicsoft Tolgee Translation Export"
+      description = "Exports translations of a Tolgee project into flat JSON files and verifies the fallback language"
+      implementationClass = "one.epicsoft.gradle.tolgee.TolgeePlugin"
+    }
+  }
+}
+
+java {
+  withSourcesJar()
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(25)
+  }
+}
+
+final def gsonVersion = "2.14.0"
+final def junitVersion = "5.12.2"
+
+dependencies {
+  implementation "com.google.code.gson:gson:${gsonVersion}"
+
+  testImplementation "org.junit.jupiter:junit-jupiter:${junitVersion}"
+  testImplementation gradleTestKit()
+  testRuntimeOnly "org.junit.platform:junit-platform-launcher"
+}
+
+tasks.named("test") {
+  useJUnitPlatform()
+  testLogging.showStandardStreams = true
+  testLogging.exceptionFormat = "full"
+}
+
+// ###########################################################
+// #### Publishing
+// #### Only wired up inside CI: outside it the repository does
+// #### not exist, so a local build never asks for credentials.
+// ###########################################################
+publishing {
+  repositories {
+    if (System.getenv("CI_JOB_TOKEN")) {
+      maven {
+        name = "gitlab"
+        url = "${System.getenv('CI_API_V4_URL')}/projects/${System.getenv('CI_PROJECT_ID')}/packages/maven"
+        credentials(HttpHeaderCredentials) {
+          name = "Job-Token"
+          value = System.getenv("CI_JOB_TOKEN")
+        }
+        authentication {
+          header(HttpHeaderAuthentication)
+        }
+      }
+    }
+  }
+}
