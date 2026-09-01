@@ -148,6 +148,28 @@ class TolgeePluginFunctionalTest {
     }
 
     @Test
+    fun `names the missing setting and an example when the configuration is incomplete`() {
+        File(projectDir, "settings.gradle").writeText("""rootProject.name = "consumer"""")
+        File(projectDir, "build.gradle").writeText(
+            """
+            plugins {
+              id "one.epicsoft.tolgee"
+            }
+
+            tolgee {
+              languages = ["de"]
+              outputDir = layout.projectDirectory.dir("i18n")
+            }
+            """.trimIndent()
+        )
+
+        val result = runAndFail("pullTranslations")
+
+        assertTrue(result.output.contains("tolgee.url is not set"), result.output)
+        assertTrue(result.output.contains("url = \"https://tolgee.example.com\""), result.output)
+    }
+
+    @Test
     fun `verify passes when every key is translated in the fallback language`() {
         writeBuildFile()
         translationFile("de").also { it.parentFile.mkdirs() }.writeText("""{"a.key":"Eins"}""")
