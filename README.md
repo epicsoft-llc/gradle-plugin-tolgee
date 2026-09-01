@@ -1,93 +1,162 @@
-# Gradle Plugin Tolgee
+# Tolgee Gradle Plugin
 
+Exports the translations of a [Tolgee](https://tolgee.io) project into flat JSON files and checks that
+nothing is missing in the language your users fall back to.
 
+The plugin does one thing: it brings translations *into* your repository. It never writes to Tolgee, it
+ships no runtime library, and it never hooks itself into your build lifecycle uninvited.
 
-## Getting started
+- Plugin id: `one.epicsoft.tolgee`
+- License: MIT
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-* [Create](https://docs.gitlab.com/user/project/repository/web_editor/#create-a-file) or [upload](https://docs.gitlab.com/user/project/repository/web_editor/#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
-
-```
-cd existing_repo
-git remote add origin https://gitlab.com/epicsoft-networks/gradle-plugin-tolgee.git
-git branch -M main
-git push -uf origin main
-```
-
-## Integrate with your tools
-
-* [Set up project integrations](https://gitlab.com/epicsoft-networks/gradle-plugin-tolgee/-/settings/integrations)
-
-## Collaborate with your team
-
-* [Invite team members and collaborators](https://docs.gitlab.com/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/user/project/merge_requests/creating_merge_requests/)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/user/project/issues/managing_issues/#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
-
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/topics/autodevops/requirements/)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ci/environments/protected_environments/)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+---
 
 ## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+### 1. Declare the plugin repository
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+The plugin is published to a GitLab package registry that is readable without credentials:
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+```groovy
+// settings.gradle
+pluginManagement {
+  repositories {
+    gradlePluginPortal()
+    maven { url = "https://gitlab.com/api/v4/projects/85970987/packages/maven" }
+  }
+}
+```
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+### 2. Apply and configure
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+```groovy
+// build.gradle
+plugins {
+  id "one.epicsoft.tolgee" version "1.0.0"
+}
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+tolgee {
+  url = "https://tolgee.example.com"
+  projectId = 16
+  tag = "core"
+  languages = ["de", "en"]
+  outputDir = layout.projectDirectory.dir("src/main/resources/messages")
+  fallbackLanguage = "en"
+}
+```
 
-## License
-For open source projects, say how it is licensed.
+### 3. Run
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+```bash
+./gradlew pullTranslations     # download <language>.json into outputDir
+./gradlew verifyTranslations   # check the fallback language, no network
+```
+
+---
+
+## Configuration
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `url` | `String` | — | **Required.** Base URL of the Tolgee instance. |
+| `projectId` | `Int` | — | **Required.** Numeric project id. |
+| `languages` | `List<String>` | — | **Required.** Language codes to export. |
+| `outputDir` | `Directory` | — | **Required.** Where `<language>.json` is written. |
+| `tag` | `String` | — | Export only keys carrying this tag. Without it the whole project is exported. |
+| `apiKeyEnv` | `String` | `TOLGEE_API_KEY` | Name of the environment variable holding the API token. |
+| `fallbackLanguage` | `String` | — | Language `verifyTranslations` requires a value in. Unset means the task does nothing. |
+| `failOnMissingToken` | `Boolean` | `false` | `true` makes a missing token fail the build instead of skipping the download. |
+
+**The token is never part of the configuration** — only the *name* of the environment variable it comes
+from. A field that accepts a token eventually contains one, and then it lives in a build file inside a
+repository. For the same reason the token is not declared as a task input: that would write it into the
+configuration cache and the build cache key.
+
+---
+
+## Tasks
+
+### `pullTranslations`
+
+Downloads one file per language, in parallel, and writes them as flat JSON sorted by key.
+
+- **Without a token** it logs one line and leaves the committed files untouched, so everyone can build
+  the project. Set `failOnMissingToken = true` in the job that is supposed to refresh them.
+- **All or nothing:** every language is fetched before the first file is written. A half updated set of
+  files is worse than a set that is one day old.
+- **Never an empty file:** an empty, nested or unparsable response fails the task and leaves what is on
+  disk alone. An empty translation file does not look broken — it looks like a product without labels.
+- Files are replaced atomically, so an interrupted run cannot truncate one.
+- The task always runs when invoked; the remote content changes without any local input changing, so an
+  "up-to-date" verdict would be a lie.
+
+### `verifyTranslations`
+
+Reads the committed files and fails when a key has no value in `fallbackLanguage`. The key universe is
+the union over all configured languages, so a key that is missing from the fallback file entirely is
+caught as well as one that is present but empty. No network access.
+
+---
+
+## Notes
+
+**Sorted keys.** The export order is the server's business and can change between calls. Sorting turns a
+single changed string into a single line diff instead of a rewritten file.
+
+**Flat JSON.** The export request sends an empty `structureDelimiter` parameter. Without it Tolgee nests
+the result on every `.` in a key, and a consumer that expects flat keys — ngx-translate, a JSON backed
+Spring `MessageSource` — finds nothing: the build stays green and only the user interface is empty. The
+plugin rejects a nested response rather than writing it.
+
+**HTML characters** such as `<`, `>` and `&` are written as they are. Escaped translation files are
+unreadable in review and needlessly different from what Tolgee returned.
+
+**Lifecycle.** Nothing is wired into `assemble` or `build`. If you want that, say so yourself:
+
+```groovy
+assemble.dependsOn pullTranslations
+```
+
+---
+
+## Development
+
+```bash
+./gradlew build    # compile, validate the plugin, run the tests
+./gradlew test     # tests only
+```
+
+Requires a Gradle daemon on Java 25. Consuming projects may target any Java version.
+
+Built with Gradle 9.7.1 and the Kotlin JVM plugin 2.3.20. The two need not be identical — Gradle 9.7.1
+embeds Kotlin 2.4.0 — because this project compiles plain Kotlin sources rather than precompiled script
+plugins, where the embedded version does have to match. Keep an eye on it when raising the wrapper: a
+genuine incompatibility shows up as `incompatible version of Kotlin` at compile time.
+
+### Layout
+
+```
+src/main/kotlin/one/epicsoft/gradle/tolgee/
+├── TolgeePlugin.kt          # entry point — registers extension and tasks
+├── TolgeeExtension.kt       # the tolgee { } block
+├── api/
+│   ├── ExportUrl.kt         # builds the export URL
+│   └── TranslationJson.kt   # parsing and writing the flat JSON
+└── task/
+    ├── PullTranslationsTask.kt
+    └── VerifyTranslationsTask.kt
+```
+
+### Releasing
+
+1. Raise `version` in `gradle.properties`
+2. Update the version in this README (plugin block above)
+3. Add a `CHANGELOG.md` entry
+4. Push a tag `X.Y.Z` — no leading `v`; the CI publishes that version
+
+### Optional package mirror
+
+The build resolves from the Gradle Plugin Portal and Maven Central. To route it through a mirror, set
+`GRADLE_PLUGIN_MIRROR_URL` and/or `MAVEN_MIRROR_URL` in the environment, optionally with
+`MAVEN_MIRROR_USERNAME` and `MAVEN_MIRROR_PASSWORD`. Nothing about a mirror is stored in this
+repository.

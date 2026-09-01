@@ -1,0 +1,56 @@
+// pluginManagement must be the first statement in this file, so the mirror
+// variables are read inside each block rather than up front.
+//
+// An optional package mirror can be configured through the environment. Nothing
+// about it is stored here: without the variables the build resolves straight
+// from the Gradle Plugin Portal and Maven Central, which is what a contributor
+// without any of this gets.
+//
+//   GRADLE_PLUGIN_MIRROR_URL   mirror for Gradle plugins
+//   MAVEN_MIRROR_URL           mirror for dependencies
+//   MAVEN_MIRROR_USERNAME      optional, applied to both
+//   MAVEN_MIRROR_PASSWORD      optional, applied to both
+
+pluginManagement {
+  repositories {
+    final def mirror = System.getenv("GRADLE_PLUGIN_MIRROR_URL")
+    if (mirror) {
+      maven {
+        url = mirror
+        final def user = System.getenv("MAVEN_MIRROR_USERNAME")
+        final def pass = System.getenv("MAVEN_MIRROR_PASSWORD")
+        if (user && pass) {
+          credentials {
+            username = user
+            password = pass
+          }
+        }
+      }
+    }
+    gradlePluginPortal()
+  }
+}
+
+dependencyResolutionManagement {
+  // Repositories are declared here and nowhere else.
+  repositoriesMode = RepositoriesMode.FAIL_ON_PROJECT_REPOS
+  repositories {
+    final def mirror = System.getenv("MAVEN_MIRROR_URL")
+    if (mirror) {
+      maven {
+        url = mirror
+        final def user = System.getenv("MAVEN_MIRROR_USERNAME")
+        final def pass = System.getenv("MAVEN_MIRROR_PASSWORD")
+        if (user && pass) {
+          credentials {
+            username = user
+            password = pass
+          }
+        }
+      }
+    }
+    mavenCentral()
+  }
+}
+
+rootProject.name = "epicsoft-gradle-plugin-tolgee"
