@@ -32,16 +32,16 @@ pluginManagement {
 ```groovy
 // build.gradle
 plugins {
-  id "one.epicsoft.tolgee" version "1.0.3"
+  id "one.epicsoft.tolgee" version "1.1.0"
 }
 
 tolgee {
   url = "https://tolgee.example.com"
   projectId = 16
   tag = "core"
-  languages = ["de", "en"]
+  languages = ["en", "de"]
   outputDir = layout.projectDirectory.dir("src/main/resources/messages")
-  fallbackLanguage = "en"
+  referenceLanguage = "en"
 }
 ```
 
@@ -64,7 +64,8 @@ tolgee {
 | `outputDir` | `Directory` | — | **Required.** Where `<language>.json` is written. |
 | `tag` | `String` | — | Export only keys carrying this tag. Without it the whole project is exported. |
 | `apiKeyEnv` | `String` | `TOLGEE_API_KEY` | Name of the environment variable holding the API token. |
-| `fallbackLanguage` | `String` | — | Language `verifyTranslations` requires a value in; must be one of `languages`. Unset means the task does nothing. |
+| `referenceLanguage` | `String` | — | Master language: every other language in `languages` needs a value for every key it has a value for. Must be one of `languages`. |
+| `fallbackLanguage` | `String` | — | Language that needs a value for every key found in any language; must be one of `languages`. Without it and without `referenceLanguage`, `verifyTranslations` does nothing. |
 | `failOnMissingToken` | `Boolean` | `false` | `true` makes a missing token fail the build instead of skipping the download. |
 
 **The token is never part of the configuration** — only the *name* of the environment variable it comes
@@ -94,9 +95,14 @@ Downloads one file per language, in parallel, and writes them as flat JSON sorte
 
 ### `verifyTranslations`
 
-Reads the committed files and fails when a key has no value in `fallbackLanguage`. The key universe is
-the union over all configured languages, so a key that is missing from the fallback file entirely is
-caught as well as one that is present but empty. No network access.
+Reads the committed files, no network access. Two checks, each switched on by its own setting:
+
+- **`referenceLanguage`** — the language texts are written in. Every other configured language needs a
+  value for every key the reference has a value for; the failure lists the gaps per language. Extra keys
+  in another language are fine, and a key without a text in the reference is not one of its keys.
+- **`fallbackLanguage`** — the language a reader falls back to. It needs a value for every key found in
+  any configured language, so a key missing from the fallback file entirely is caught as well as one
+  that is present but empty.
 
 Asking for both tasks in one invocation works: verification is ordered after the download
 (`mustRunAfter`, not `dependsOn`), so the two never race, and verifying alone still never touches the
