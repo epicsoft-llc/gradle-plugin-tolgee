@@ -1,6 +1,7 @@
 package one.epicsoft.gradle.tolgee.api
 
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
@@ -53,5 +54,21 @@ class ExportUrlTest {
 
         assertTrue(url.contains("languages=pt-BR"), url)
         assertTrue(url.contains("filterTag=web+ui"), url)
+    }
+
+    @Test
+    fun `flags plain http to a remote host`() {
+        assertTrue(ExportUrl.isPlainHttpToRemoteHost("http://tolgee.example.com"))
+        assertTrue(ExportUrl.isPlainHttpToRemoteHost(" HTTP://Tolgee.Example.com:8080/ "))
+        assertTrue(ExportUrl.isPlainHttpToRemoteHost("http://10.0.0.5"))
+    }
+
+    @Test
+    fun `leaves https, loopback and unparsable urls alone`() {
+        assertFalse(ExportUrl.isPlainHttpToRemoteHost("https://tolgee.example.com"))
+        assertFalse(ExportUrl.isPlainHttpToRemoteHost("http://localhost:8080"))
+        assertFalse(ExportUrl.isPlainHttpToRemoteHost("http://127.0.0.1:8080"))
+        assertFalse(ExportUrl.isPlainHttpToRemoteHost("http://[::1]:8080"))
+        assertFalse(ExportUrl.isPlainHttpToRemoteHost("not a url"))
     }
 }

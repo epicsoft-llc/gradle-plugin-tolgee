@@ -14,6 +14,10 @@ the versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 - `pullTranslations` closes its HTTP client after the export instead of leaving it to the garbage
   collector inside a long-lived Gradle daemon.
 
+### Security
+- `pullTranslations` warns when `url` uses plain `http://` for a host other than loopback — the API
+  token would travel unencrypted.
+
 ### Changed
 - Built with Gradle 9.8.0 and Kotlin 2.4.20; tests run on JUnit 6.
 - The configuration cache test runs with `--warning-mode=fail`, so a deprecation — such as accessing

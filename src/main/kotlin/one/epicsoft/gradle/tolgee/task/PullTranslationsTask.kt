@@ -103,6 +103,11 @@ abstract class PullTranslationsTask : DefaultTask() {
             return
         }
 
+        // A warning, not a failure: an instance without TLS on a trusted network is
+        // the consumer's call — but it has to be a conscious one.
+        if (ExportUrl.isPlainHttpToRemoteHost(baseUrl)) {
+            logger.warn("Tolgee: '{}' uses plain http — the API token travels unencrypted. Use https.", baseUrl.trim().trimEnd('/'))
+        }
         val filterTag = tag.orNull?.takeIf { it.isNotBlank() }
         val downloaded = download(baseUrl, project, filterTag, targets, token)
 
