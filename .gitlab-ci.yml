@@ -4,7 +4,6 @@ stages:
 
 variables:
   GRADLE_OPTS: "-Dorg.gradle.daemon=false"
-  GRADLE_USER_HOME: "$CI_PROJECT_DIR/.gradle"
 
 #### Disable CI for MR
 workflow:
@@ -16,14 +15,7 @@ workflow:
 before_script:
   - chmod +x ./gradlew
 
-cache:
-  #### Keyed on the dependency files, not the branch: branches and tags share it, a new one only when versions change.
-  key:
-    files: [ "build.gradle", "gradle/wrapper/gradle-wrapper.properties" ]
-    prefix: tolgee-gradle
-  paths:
-    - .gradle/caches/
-    - .gradle/wrapper/
+#### No cache on purpose: the pipeline runs rarely, and every dependency change would create a new archive.
 
 BLD:plugin:
   stage: build
@@ -32,6 +24,8 @@ BLD:plugin:
     - ./gradlew build
   artifacts:
     name: "tolgee-plugin-${CI_COMMIT_REF_NAME}-${CI_PIPELINE_ID}"
+    #### always: the test report is most useful when the build failed
+    when: always
     paths:
       - build/libs/*.jar
     reports:

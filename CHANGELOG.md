@@ -4,6 +4,23 @@ All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 the versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.3] - 2026-09-26
+
+### Fixed
+- `verifyTranslations` names a missing `outputDir` together with an example value, as `pullTranslations`
+  does since 1.0.2, instead of Gradle's generic "property doesn't have a configured value".
+- `verifyTranslations` reports a `fallbackLanguage` that is not among `languages` as a configuration
+  error. It used to blame a missing file, although `pullTranslations` never downloads that language.
+- `pullTranslations` closes its HTTP client after the export instead of leaving it to the garbage
+  collector inside a long-lived Gradle daemon.
+
+### Changed
+- Built with Gradle 9.8.0 and Kotlin 2.4.20; tests run on JUnit 6.
+- The configuration cache test runs with `--warning-mode=fail`, so a deprecation — such as accessing
+  `Task.project` at execution time, an error from Gradle 10 on — fails the build.
+- CI no longer caches Gradle downloads between pipelines — the pipeline runs rarely, and every
+  dependency change created a new cache archive. The test report is kept when the build fails.
+
 ## [1.0.2] - 2026-09-01
 
 ### Fixed
