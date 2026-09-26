@@ -41,9 +41,10 @@ class TolgeePlugin : Plugin<Project> {
 
         project.tasks.register(VERIFY_TASK, VerifyTranslationsTask::class.java) { task ->
             task.group = VERIFICATION_GROUP
-            task.description = "Checks that every key has a non-empty value in the fallback language."
+            task.description = "Checks the translations against the reference language and/or the fallback language."
             task.languages.set(extension.languages)
             task.outputDir.set(extension.outputDir)
+            task.referenceLanguage.set(extension.referenceLanguage)
             task.fallbackLanguage.set(extension.fallbackLanguage)
             // Verification reads the directory the download writes. Ordering only,
             // never dependsOn: verifying must stay offline, and forcing a download

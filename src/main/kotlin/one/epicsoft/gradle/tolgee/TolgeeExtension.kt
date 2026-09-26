@@ -32,10 +32,17 @@ abstract class TolgeeExtension {
     abstract val apiKeyEnv: Property<String>
 
     /**
+     * The master language, usually the one texts are written in. `verifyTranslations`
+     * requires every other language in [languages] to have a value for every key the
+     * reference has a value for. Optional.
+     */
+    abstract val referenceLanguage: Property<String>
+
+    /**
      * Language every key must be translated into, checked by `verifyTranslations`.
      * This is the language a reader falls back to when their own is missing, so an
      * empty value here shows up as an empty label in the product. Optional; without
-     * it the verification task does nothing.
+     * it and without [referenceLanguage] the verification task does nothing.
      */
     abstract val fallbackLanguage: Property<String>
 

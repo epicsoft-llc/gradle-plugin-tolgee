@@ -204,6 +204,45 @@ class TolgeePluginFunctionalTest {
     }
 
     @Test
+    fun `reference language - every other language has its keys, extra keys are fine`() {
+        writeReferenceBuildFile("""["en", "de", "ru"]""")
+        translationFile("en").also { it.parentFile.mkdirs() }.writeText("""{"a":"One","b":"Two","c":""}""")
+        translationFile("de").writeText("""{"a":"Eins","b":"Zwei","x":"nur auf Deutsch"}""")
+        translationFile("ru").writeText("""{"a":"Odin","b":"Dva"}""")
+
+        val result = run("verifyTranslations")
+
+        // "c" has no English text, so it is not one of the reference keys
+        assertTrue(result.output.contains("all 2 keys of 'en' have a value in de, ru"), result.output)
+    }
+
+    @Test
+    fun `reference language - missing and empty keys are reported per language`() {
+        writeReferenceBuildFile("""["en", "de", "ru"]""")
+        translationFile("en").also { it.parentFile.mkdirs() }.writeText("""{"a":"One","b":"Two","c":"Three"}""")
+        translationFile("de").writeText("""{"a":"Eins","b":""}""")
+        translationFile("ru").writeText("""{"a":"Odin","b":"Dva","c":"Tri"}""")
+
+        val result = runAndFail("verifyTranslations")
+
+        assertTrue(result.output.contains("keys of the reference language 'en' without a value:"), result.output)
+        // Gradle indents the continuation lines of a failure message, hence \s+
+        assertTrue(Regex("""de \(2\):\s+- b\s+- c""").containsMatchIn(result.output), result.output)
+        assertTrue(!result.output.contains("ru ("), result.output)
+    }
+
+    @Test
+    fun `reference language - a missing file and a reference outside the languages are named`() {
+        writeReferenceBuildFile("""["en", "de"]""")
+        translationFile("en").also { it.parentFile.mkdirs() }.writeText("""{"a":"One"}""")
+        assertTrue(runAndFail("verifyTranslations").output.contains("'de.json' missing"))
+
+        writeReferenceBuildFile("""["de"]""")
+        translationFile("de").writeText("""{"a":"Eins"}""")
+        assertTrue(runAndFail("verifyTranslations").output.contains("tolgee.referenceLanguage 'en' is not one of tolgee.languages [de]"))
+    }
+
+    @Test
     fun `verify passes when every key is translated in the fallback language`() {
         writeBuildFile()
         translationFile("de").also { it.parentFile.mkdirs() }.writeText("""{"a.key":"Eins"}""")
@@ -244,6 +283,23 @@ class TolgeePluginFunctionalTest {
               outputDir = layout.projectDirectory.dir("i18n")
               fallbackLanguage = "en"
               failOnMissingToken = $failOnMissingToken
+            }
+            """.trimIndent()
+        )
+    }
+
+    private fun writeReferenceBuildFile(languages: String) {
+        File(projectDir, "settings.gradle").writeText("""rootProject.name = "consumer"""")
+        File(projectDir, "build.gradle").writeText(
+            """
+            plugins {
+              id "one.epicsoft.tolgee"
+            }
+
+            tolgee {
+              languages = $languages
+              referenceLanguage = "en"
+              outputDir = layout.projectDirectory.dir("i18n")
             }
             """.trimIndent()
         )

@@ -4,6 +4,13 @@ All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 the versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-09-26
+
+### Added
+- `referenceLanguage`: `verifyTranslations` checks every other configured language against a master
+  language — each key with a text in the reference needs a text in every other language. Gaps are listed
+  per language. Works alongside `fallbackLanguage` or on its own
+
 ## [1.0.3] - 2026-09-26
 
 ### Fixed
