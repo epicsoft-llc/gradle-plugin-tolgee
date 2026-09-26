@@ -87,6 +87,8 @@ Downloads one file per language, in parallel, and writes them as flat JSON sorte
 - **Never an empty file:** an empty, nested or unparsable response fails the task and leaves what is on
   disk alone. An empty translation file does not look broken — it looks like a product without labels.
 - Files are replaced atomically, so an interrupted run cannot truncate one.
+- **Plain HTTP warns:** a `url` with `http://` to anything but loopback logs a warning, because the token
+  would travel unencrypted. It does not fail — whether that is acceptable is the consumer's call.
 - The task always runs when invoked; the remote content changes without any local input changing, so an
   "up-to-date" verdict would be a lie.
 

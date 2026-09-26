@@ -1,5 +1,6 @@
 package one.epicsoft.gradle.tolgee.api
 
+import java.net.URI
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -28,6 +29,20 @@ object ExportUrl {
             url.append("&filterTag=").append(encode(tag.trim()))
         }
         return url.toString()
+    }
+
+    /**
+     * `true` when the token would cross the network unencrypted: plain `http` to a
+     * host other than loopback. Loopback stays quiet — a local stub or a tunnel
+     * endpoint never leaves the machine. An unparsable URL fails on the request anyway.
+     */
+    fun isPlainHttpToRemoteHost(baseUrl: String): Boolean {
+        val uri = runCatching { URI(baseUrl.trim()) }.getOrNull() ?: return false
+        if (!uri.scheme.equals("http", ignoreCase = true)) {
+            return false
+        }
+        val host = uri.host?.lowercase()?.removeSurrounding("[", "]") ?: return false
+        return host != "localhost" && host != "::1" && !host.startsWith("127.")
     }
 
     private fun encode(value: String): String = URLEncoder.encode(value, StandardCharsets.UTF_8)

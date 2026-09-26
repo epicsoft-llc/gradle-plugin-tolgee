@@ -57,6 +57,17 @@ class TolgeePluginFunctionalTest {
         assertTrue(requestUris.all { it.contains("structureDelimiter=") }, requestUris.toString())
         assertTrue(requestUris.all { it.contains("filterTag=core") }, requestUris.toString())
         assertTrue(requestTokens.all { it == TOKEN }, requestTokens.toString())
+        assertTrue(!result.output.contains("uses plain http"), "loopback must not warn: " + result.output)
+    }
+
+    @Test
+    fun `warns when the token would travel over plain http`() {
+        // .invalid never resolves (RFC 2606): the export fails, the warning must come first.
+        writeBuildFile(url = "http://tolgee.invalid")
+
+        val result = runAndFail("pullTranslations")
+
+        assertTrue(result.output.contains("'http://tolgee.invalid' uses plain http"), result.output)
     }
 
     @Test
@@ -217,7 +228,7 @@ class TolgeePluginFunctionalTest {
 
     // ------------------------------------------------------------------ helpers
 
-    private fun writeBuildFile(failOnMissingToken: Boolean = false) {
+    private fun writeBuildFile(failOnMissingToken: Boolean = false, url: String = "http://127.0.0.1:${server.address.port}") {
         File(projectDir, "settings.gradle").writeText("""rootProject.name = "consumer"""")
         File(projectDir, "build.gradle").writeText(
             """
@@ -226,7 +237,7 @@ class TolgeePluginFunctionalTest {
             }
 
             tolgee {
-              url = "http://127.0.0.1:${server.address.port}"
+              url = "$url"
               projectId = 16
               tag = "core"
               languages = ["de", "en"]
