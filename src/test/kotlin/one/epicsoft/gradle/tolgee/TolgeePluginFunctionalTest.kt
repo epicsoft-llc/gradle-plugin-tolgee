@@ -119,8 +119,10 @@ class TolgeePluginFunctionalTest {
     fun `works with the configuration cache, including a reused entry`() {
         writeBuildFile()
 
-        val first = runWith("pullTranslations", "--configuration-cache")
-        val second = runWith("pullTranslations", "--configuration-cache")
+        // --warning-mode=fail: a deprecation, e.g. Task.project at execution time
+        // (an error from Gradle 10 on), fails the test instead of scrolling past.
+        val first = runWith("pullTranslations", "--configuration-cache", "--warning-mode=fail")
+        val second = runWith("pullTranslations", "--configuration-cache", "--warning-mode=fail")
 
         assertEquals(TaskOutcome.SUCCESS, first.task(":pullTranslations")?.outcome)
         assertEquals(TaskOutcome.SUCCESS, second.task(":pullTranslations")?.outcome)
@@ -170,6 +172,27 @@ class TolgeePluginFunctionalTest {
     }
 
     @Test
+    fun `verify names a missing outputDir and an example`() {
+        writeVerifyOnlyBuildFile(languages = """["de", "en"]""", outputDir = null)
+
+        val result = runAndFail("verifyTranslations")
+
+        assertTrue(result.output.contains("tolgee.outputDir is not set"), result.output)
+        assertTrue(result.output.contains("layout.projectDirectory.dir("), result.output)
+    }
+
+    @Test
+    fun `verify rejects a fallback language that is not among the languages`() {
+        writeVerifyOnlyBuildFile(languages = """["de"]""", outputDir = "i18n")
+        translationFile("de").also { it.parentFile.mkdirs() }.writeText("""{"a.key":"Eins"}""")
+        translationFile("en").writeText("""{"a.key":"One"}""")
+
+        val result = runAndFail("verifyTranslations")
+
+        assertTrue(result.output.contains("tolgee.fallbackLanguage 'en' is not one of tolgee.languages [de]"), result.output)
+    }
+
+    @Test
     fun `verify passes when every key is translated in the fallback language`() {
         writeBuildFile()
         translationFile("de").also { it.parentFile.mkdirs() }.writeText("""{"a.key":"Eins"}""")
@@ -210,6 +233,23 @@ class TolgeePluginFunctionalTest {
               outputDir = layout.projectDirectory.dir("i18n")
               fallbackLanguage = "en"
               failOnMissingToken = $failOnMissingToken
+            }
+            """.trimIndent()
+        )
+    }
+
+    private fun writeVerifyOnlyBuildFile(languages: String, outputDir: String?) {
+        File(projectDir, "settings.gradle").writeText("""rootProject.name = "consumer"""")
+        File(projectDir, "build.gradle").writeText(
+            """
+            plugins {
+              id "one.epicsoft.tolgee"
+            }
+
+            tolgee {
+              languages = $languages
+              fallbackLanguage = "en"
+              ${outputDir?.let { "outputDir = layout.projectDirectory.dir(\"$it\")" } ?: ""}
             }
             """.trimIndent()
         )

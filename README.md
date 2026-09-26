@@ -32,7 +32,7 @@ pluginManagement {
 ```groovy
 // build.gradle
 plugins {
-  id "one.epicsoft.tolgee" version "1.0.2"
+  id "one.epicsoft.tolgee" version "1.0.3"
 }
 
 tolgee {
@@ -64,7 +64,7 @@ tolgee {
 | `outputDir` | `Directory` | — | **Required.** Where `<language>.json` is written. |
 | `tag` | `String` | — | Export only keys carrying this tag. Without it the whole project is exported. |
 | `apiKeyEnv` | `String` | `TOLGEE_API_KEY` | Name of the environment variable holding the API token. |
-| `fallbackLanguage` | `String` | — | Language `verifyTranslations` requires a value in. Unset means the task does nothing. |
+| `fallbackLanguage` | `String` | — | Language `verifyTranslations` requires a value in; must be one of `languages`. Unset means the task does nothing. |
 | `failOnMissingToken` | `Boolean` | `false` | `true` makes a missing token fail the build instead of skipping the download. |
 
 **The token is never part of the configuration** — only the *name* of the environment variable it comes
@@ -132,8 +132,8 @@ assemble.dependsOn pullTranslations
 
 Requires a Gradle daemon on Java 25. Consuming projects may target any Java version.
 
-Built with Gradle 9.7.1 and the Kotlin JVM plugin 2.3.20. The two need not be identical — Gradle 9.7.1
-embeds Kotlin 2.4.0 — because this project compiles plain Kotlin sources rather than precompiled script
+Built with Gradle 9.8.0 and the Kotlin JVM plugin 2.4.20, tested with JUnit 6. The two need not be
+identical — Gradle 9.8.0 embeds Kotlin 2.4.10 — because this project compiles plain Kotlin sources rather than precompiled script
 plugins, where the embedded version does have to match. Keep an eye on it when raising the wrapper: a
 genuine incompatibility shows up as `incompatible version of Kotlin` at compile time.
 
@@ -155,7 +155,7 @@ src/main/kotlin/one/epicsoft/gradle/tolgee/
 
 1. Raise `version` in `gradle.properties`
 2. Update the version in this README (plugin block above)
-3. Add a `CHANGELOG.md` entry
+3. Add a `CHANGELOG.md` entry and set its release date (it reads `unreleased` until then)
 4. Merge `develop` into `main`
 5. Tag that commit on `main` with `X.Y.Z` — no leading `v` — and push the tag;
    the CI publishes that version

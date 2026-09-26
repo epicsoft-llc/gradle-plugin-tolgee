@@ -15,6 +15,7 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
+import java.nio.file.Path
 
 /**
  * Checks the committed translation files without touching the network.
@@ -30,8 +31,11 @@ abstract class VerifyTranslationsTask : DefaultTask() {
     @get:Input
     abstract val languages: ListProperty<String>
 
+    // @Optional as in PullTranslationsTask: Gradle's own "doesn't have a configured
+    // value" would fire first and hide the message below, which names an example.
     @get:InputDirectory
     @get:PathSensitive(PathSensitivity.RELATIVE)
+    @get:Optional
     abstract val outputDir: DirectoryProperty
 
     @get:Input
@@ -46,11 +50,19 @@ abstract class VerifyTranslationsTask : DefaultTask() {
             return
         }
 
-        val directory = outputDir.get().asFile.toPath()
+        val directory = outputDir.orNull?.asFile?.toPath() ?: throw GradleException(
+            "tolgee.outputDir is not set. Add it to the tolgee { } block, for example: " +
+                "outputDir = layout.projectDirectory.dir(\"src/main/resources/messages\")"
+        )
         val targets = languages.getOrElse(emptyList()).map { it.trim() }.filter { it.isNotEmpty() }
+        // pullTranslations only downloads what is in languages; without this the
+        // report below would blame a missing file instead of the configuration.
+        if (fallback !in targets) {
+            throw GradleException("tolgee.fallbackLanguage '$fallback' is not one of tolgee.languages $targets.")
+        }
         val loaded = targets.mapNotNull { language ->
             val file = directory.resolve("$language.json")
-            if (Files.exists(file)) language to read(file.toFile().path) else null
+            if (Files.exists(file)) language to read(file) else null
         }.toMap()
 
         val fallbackTranslations = loaded[fallback]
@@ -74,9 +86,9 @@ abstract class VerifyTranslationsTask : DefaultTask() {
         logger.lifecycle("Tolgee: {} keys, all translated in '{}'.", allKeys.size, fallback)
     }
 
-    private fun read(path: String): Map<String, String?> =
-        runCatching { TranslationJson.parse(Files.readString(java.nio.file.Path.of(path), StandardCharsets.UTF_8)) }
-            .getOrElse { throw GradleException("Tolgee: cannot read '$path': ${it.message}") }
+    private fun read(file: Path): Map<String, String?> =
+        runCatching { TranslationJson.parse(Files.readString(file, StandardCharsets.UTF_8)) }
+            .getOrElse { throw GradleException("Tolgee: cannot read '$file': ${it.message}") }
 
     private companion object {
         const val REPORTED_KEYS = 20

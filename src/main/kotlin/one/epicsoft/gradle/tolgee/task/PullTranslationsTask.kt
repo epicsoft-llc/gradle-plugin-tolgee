@@ -120,26 +120,29 @@ abstract class PullTranslationsTask : DefaultTask() {
         languages: List<String>,
         token: String,
     ): Map<String, Map<String, String?>> {
-        val client = HttpClient.newBuilder().connectTimeout(CONNECT_TIMEOUT).build()
         logger.lifecycle(
             "Tolgee: exporting project {}{} from {}",
             project,
             filterTag?.let { " (tag '$it')" } ?: "",
             baseUrl.trimEnd('/'),
         )
-        // One virtual thread per language: the work is waiting, not computing.
-        Executors.newVirtualThreadPerTaskExecutor().use { executor ->
-            val jobs = languages.associateWith { language ->
-                executor.submit<Map<String, String?>> {
-                    export(client, baseUrl, project, language, filterTag, token)
+        // Closed right away: the daemon outlives the build, and an unclosed client
+        // holds its selector thread until garbage collection.
+        HttpClient.newBuilder().connectTimeout(CONNECT_TIMEOUT).build().use { client ->
+            // One virtual thread per language: the work is waiting, not computing.
+            Executors.newVirtualThreadPerTaskExecutor().use { executor ->
+                val jobs = languages.associateWith { language ->
+                    executor.submit<Map<String, String?>> {
+                        export(client, baseUrl, project, language, filterTag, token)
+                    }
                 }
-            }
-            return jobs.mapValues { (language, job) ->
-                runCatching { job.get() }.getOrElse { failure ->
-                    throw GradleException(
-                        "Tolgee export failed for '$language': ${failure.cause?.message ?: failure.message}",
-                        failure.cause ?: failure,
-                    )
+                return jobs.mapValues { (language, job) ->
+                    runCatching { job.get() }.getOrElse { failure ->
+                        throw GradleException(
+                            "Tolgee export failed for '$language': ${failure.cause?.message ?: failure.message}",
+                            failure.cause ?: failure,
+                        )
+                    }
                 }
             }
         }
