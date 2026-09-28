@@ -4,6 +4,14 @@ All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 the versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2026-09-28
+
+### Added
+- CI creates a GitHub release for every tag, with the changelog entry and the JARs attached
+
+### Changed
+- README links to GitLab and the GitHub mirror
+
 ## [1.1.0] - 2026-09-26
 
 ### Added
