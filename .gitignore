@@ -19,3 +19,7 @@ local.properties
 *.log
 .DS_Store
 Thumbs.db
+
+### AI assistant ###
+CLAUDE.md
+.claude/

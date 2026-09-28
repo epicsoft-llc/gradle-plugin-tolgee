@@ -8,6 +8,8 @@ ships no runtime library, and it never hooks itself into your build lifecycle un
 
 - Plugin id: `one.epicsoft.tolgee`
 - License: MIT
+- Source: developed on [GitLab](https://gitlab.com/epicsoft-networks/gradle-plugin-tolgee), mirrored to
+  [GitHub](https://github.com/epicsoft-llc/gradle-plugin-tolgee) — please open issues and merge requests on GitLab
 
 ---
 
@@ -32,7 +34,7 @@ pluginManagement {
 ```groovy
 // build.gradle
 plugins {
-  id "one.epicsoft.tolgee" version "1.1.0"
+  id "one.epicsoft.tolgee" version "1.1.1"
 }
 
 tolgee {
@@ -166,7 +168,7 @@ src/main/kotlin/one/epicsoft/gradle/tolgee/
 3. Add a `CHANGELOG.md` entry and set its release date (it reads `unreleased` until then)
 4. Merge `develop` into `main`
 5. Tag that commit on `main` with `X.Y.Z` — no leading `v` — and push the tag;
-   the CI publishes that version
+   the CI publishes that version and creates the GitHub release with the `CHANGELOG.md` entry and the JARs
 
 Work happens on `develop`; `main` carries what is released, and every tag sits on `main`.
 
