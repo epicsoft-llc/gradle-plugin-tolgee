@@ -9,7 +9,7 @@ ships no runtime library, and it never hooks itself into your build lifecycle un
 - Plugin id: `one.epicsoft.tolgee`
 - License: MIT
 - Source: developed on [GitLab](https://gitlab.com/epicsoft-networks/gradle-plugin-tolgee), mirrored to
-  [GitHub](https://github.com/epicsoft-llc/gradle-plugin-tolgee) — please open issues and merge requests on GitLab
+  [GitHub](https://github.com/epicsoft-llc/gradle-plugin-tolgee) — issues are welcome on both; code changes only as merge requests on GitLab, the mirror cannot take pull requests
 
 ---
 
