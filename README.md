@@ -178,3 +178,11 @@ The build resolves from the Gradle Plugin Portal and Maven Central. To route it 
 `GRADLE_PLUGIN_MIRROR_URL` and/or `MAVEN_MIRROR_URL` in the environment, optionally with
 `MAVEN_MIRROR_USERNAME` and `MAVEN_MIRROR_PASSWORD`. Nothing about a mirror is stored in this
 repository.
+
+---
+
+## License
+
+[MIT](https://gitlab.com/epicsoft-networks/gradle-plugin-tolgee/-/blob/main/LICENSE)
+
+The MIT license applies only to files created by epicsoft LLC. Third-party files, such as the Gradle wrapper, remain under their own licenses.
