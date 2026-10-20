@@ -1,9 +1,9 @@
 plugins {
   id "java-gradle-plugin"
-  // Need not equal the Kotlin embedded in the wrapper (Gradle 9.8.0: 2.4.10): this compiles
+  // Need not equal the Kotlin embedded in the wrapper (Gradle 9.8.2: 2.4.10): this compiles
   // plain Kotlin sources, not precompiled script plugins. A genuine clash shows up as
   // "incompatible version of Kotlin" at compile time.
-  id "org.jetbrains.kotlin.jvm" version "2.4.20"
+  id "org.jetbrains.kotlin.jvm" version "2.4.21"
   id "maven-publish"
 }
 

@@ -12,7 +12,7 @@ nothing is missing in the fallback language.
 | Version | `gradle.properties` → `version` |
 | Main class | `one.epicsoft.gradle.tolgee.TolgeePlugin` |
 | Tasks | `pullTranslations`, `verifyTranslations` |
-| Repository | developed on `gitlab.com/epicsoft-networks/gradle-plugin-tolgee` (branch `develop` → `main`), mirrored to `github.com/epicsoft-llc/gradle-plugin-tolgee` |
+| Repository | developed on `gitlab.com/epicsoft-networks/gradle-plugin-tolgee` (branch `main` only), mirrored to `github.com/epicsoft-llc/gradle-plugin-tolgee` |
 
 ## Rules
 
@@ -85,7 +85,7 @@ src/main/kotlin/one/epicsoft/gradle/tolgee/
   dependency"). `dependsOn` would be wrong: verifying must stay offline and never trigger a download.
 - **Nothing hooks into `assemble`.** A task that goes to the network on every build makes offline builds impossible;
   the consuming project writes that one line itself.
-- **Kotlin 2.4.20 on Gradle 9.8.0**, although the wrapper embeds Kotlin 2.4.10 (both directions checked, they build
+- **Kotlin 2.4.21 on Gradle 9.8.2**, although the wrapper embeds Kotlin 2.4.10 (both directions checked, they build
   without warnings). The strict equality the sister project `gradle-plugin-depcheck` demands applies to precompiled
   script plugins (`kotlin-dsl`) — this project compiles plain Kotlin sources. Still look when raising the wrapper: a
   genuine incompatibility shows up as "incompatible version of Kotlin" at compile time.
@@ -106,14 +106,12 @@ src/main/kotlin/one/epicsoft/gradle/tolgee/
 
 ## Releasing
 
-**Flow: `develop` → merge into `main` → tag on `main`.** Work happens on `develop`; `main` carries what is released,
-and every tag sits on `main`.
+**Flow: work on `main`, tag on `main`.** There is no other long-lived branch.
 
 1. Raise `version` in `gradle.properties`
 2. Update the version in the README (plugin block)
-3. `CHANGELOG.md`: rename `## [Unreleased]` to `## [X.Y.Z] - <date>`
-4. Merge `develop` into `main`
-5. Tag `X.Y.Z` on `main` and push it — **no leading `v`**
+3. `CHANGELOG.md`: an entry is headed by its date until the release, then `## [X.Y.Z] - <date>` — never `[Unreleased]`
+4. Tag `X.Y.Z` on `main` and push it — **no leading `v`**
 
 The tag *is* the version; the `PUB:plugin` job publishes it to the GitLab package registry, authenticated with
 `CI_JOB_TOKEN`. The job rule only matches `X.Y.Z` or `X.Y.Z.W`; any other tag publishes nothing.

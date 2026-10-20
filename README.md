@@ -142,8 +142,8 @@ assemble.dependsOn pullTranslations
 
 Requires a Gradle daemon on Java 25. Consuming projects may target any Java version.
 
-Built with Gradle 9.8.0 and the Kotlin JVM plugin 2.4.20, tested with JUnit 6. The two need not be
-identical — Gradle 9.8.0 embeds Kotlin 2.4.10 — because this project compiles plain Kotlin sources rather than precompiled script
+Built with Gradle 9.8.2 and the Kotlin JVM plugin 2.4.21, tested with JUnit 6. The two need not be
+identical — Gradle 9.8.2 embeds Kotlin 2.4.10 — because this project compiles plain Kotlin sources rather than precompiled script
 plugins, where the embedded version does have to match. Keep an eye on it when raising the wrapper: a
 genuine incompatibility shows up as `incompatible version of Kotlin` at compile time.
 
@@ -165,12 +165,11 @@ src/main/kotlin/one/epicsoft/gradle/tolgee/
 
 1. Raise `version` in `gradle.properties`
 2. Update the version in this README (plugin block above)
-3. Add a `CHANGELOG.md` entry and set its release date (it reads `unreleased` until then)
-4. Merge `develop` into `main`
-5. Tag that commit on `main` with `X.Y.Z` — no leading `v` — and push the tag;
+3. Head the `CHANGELOG.md` entry with `## [X.Y.Z] - <date>` (until then it carries its date alone)
+4. Tag that commit on `main` with `X.Y.Z` — no leading `v` — and push the tag;
    the CI publishes that version and creates the GitHub release with the `CHANGELOG.md` entry and the JARs
 
-Work happens on `develop`; `main` carries what is released, and every tag sits on `main`.
+Work happens on `main`, and every tag sits there.
 
 ### Optional package mirror
 
