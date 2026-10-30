@@ -10,6 +10,8 @@ the versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 - Published to the [Gradle Plugin Portal](https://plugins.gradle.org/plugin/one.epicsoft.tolgee), so
   `plugins { id "one.epicsoft.tolgee" }` needs no repository. The GitLab package registry keeps receiving every release
 - Javadoc JAR next to the plugin and sources JARs
+- CI on `main`, on every push and weekly: licenses (permissive only), known vulnerabilities and newer versions of the
+  runtime dependencies
 
 ### Changed
 - Built with Gradle 9.8.2 and Kotlin 2.4.21

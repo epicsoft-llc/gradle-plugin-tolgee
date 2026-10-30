@@ -1,0 +1,16 @@
+// DEP:plugin - applies the newest published depcheck plugin without making it part of the build
+initscript {
+  repositories {
+    gradlePluginPortal()
+  }
+  dependencies {
+    classpath "one.epicsoft:epicsoft-gradle-plugin-depcheck:latest.release"
+  }
+}
+
+rootProject {
+  apply plugin: one.epicsoft.gradle.DepsUpdatePlugin
+  depsUpdate {
+    failOnUpdates = true
+  }
+}

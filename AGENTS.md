@@ -37,6 +37,8 @@ nothing is missing in the fallback language.
 ./gradlew build    # compile, validate the plugin, run the tests
 ./gradlew test     # tests only
 ./gradlew publishPlugins --validate-only   # checks the Plugin Portal metadata, uploads nothing
+./gradlew checkLicense    # runtime dependencies against allowed-licenses.json
+./gradlew --init-script ci/dependency-updates.init.gradle checkDependencyUpdates --no-configuration-cache
 ```
 
 The tests cover the export URL, the JSON handling and the tasks end to end via `GradleRunner` against a local HTTP
@@ -108,6 +110,16 @@ src/main/kotlin/one/epicsoft/gradle/tolgee/
 - **`com.gradle.plugin-publish` 2.2.1** publishes to the Gradle Plugin Portal and adds the Javadoc JAR. Every plugin in
   `gradlePlugin` needs `tags` and a `compatibility(it)` block; the configuration cache is declared because the
   functional test runs with it.
+- **`LIC:plugin`, `SEC:plugin` and `DEP:plugin` run on `main` only** — on pushes and in the pipeline schedule `weekly`
+  (Sundays); a tag publishes without them. They check the runtime dependencies, the JARs the plugin brings into a
+  consumer's build, which `BLD:plugin` exports with `runtimeDependencies`:
+  - `LIC:plugin`: `checkLicense` (`com.github.jk1.dependency-license-report` 3.1.4) against `allowed-licenses.json`,
+    permissive licenses only. The task is not configuration-cache compatible; Gradle discards the entry.
+  - `SEC:plugin`: OWASP dependency-check, fails from CVSS 5. The NVD data come from a central database through the
+    protected `ESN_DEPCHECK_*` variables, only the runners tagged `epicsoft` reach it; without the variables the job
+    does not run.
+  - `DEP:plugin`: `ci/dependency-updates.init.gradle` applies the newest depcheck plugin from the Gradle Plugin Portal
+    without making it part of the build; `failOnUpdates`, `allow_failure`.
 
 ## Releasing
 

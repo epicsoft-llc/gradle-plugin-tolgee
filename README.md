@@ -143,6 +143,10 @@ assemble.dependsOn pullTranslations
 ./gradlew publishPlugins --validate-only   # checks the Plugin Portal metadata, uploads nothing
 ```
 
+On `main` the pipeline also checks the runtime dependencies — Gson and the Kotlin standard library, the JARs the plugin
+brings into your build: their licenses (`./gradlew checkLicense`, permissive licenses only), known vulnerabilities (OWASP
+dependency-check) and newer versions. It runs on every push and weekly.
+
 Requires a Gradle daemon on Java 25. Consuming projects may target any Java version.
 
 Built with Gradle 9.8.2 and the Kotlin JVM plugin 2.4.21, tested with JUnit 6. The two need not be
