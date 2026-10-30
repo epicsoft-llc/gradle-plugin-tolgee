@@ -145,7 +145,8 @@ assemble.dependsOn pullTranslations
 
 On `main` the pipeline also checks the runtime dependencies — Gson and the Kotlin standard library, the JARs the plugin
 brings into your build: their licenses (`./gradlew checkLicense`, permissive licenses only), known vulnerabilities (OWASP
-dependency-check) and newer versions. It runs on every push and weekly.
+dependency-check) and newer versions. It also builds with deprecated Gradle features treated as errors, so they show up
+before the next Gradle major removes them. It runs on every push and weekly.
 
 Requires a Gradle daemon on Java 25. Consuming projects may target any Java version.
 

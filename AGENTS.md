@@ -90,8 +90,8 @@ src/main/kotlin/one/epicsoft/gradle/tolgee/
 - **Nothing hooks into `assemble`.** A task that goes to the network on every build makes offline builds impossible;
   the consuming project writes that one line itself.
 - **Kotlin 2.4.21 on Gradle 9.8.2**, although the wrapper embeds Kotlin 2.4.10 (both directions checked, they build
-  without warnings). The strict equality the sister project `gradle-plugin-depcheck` demands applies to precompiled
-  script plugins (`kotlin-dsl`) — this project compiles plain Kotlin sources. Still look when raising the wrapper: a
+  without warnings). Strict equality applies to precompiled script plugins (`kotlin-dsl`) only — this project, like the
+  sister project `gradle-plugin-depcheck` since 0.5.1, compiles plain Kotlin sources. Still look when raising the wrapper: a
   genuine incompatibility shows up as "incompatible version of Kotlin" at compile time.
 - **`referenceLanguage` (since 1.1.0) is the master language**: every other language needs a text for each key that
   has one in the reference. `fallbackLanguage` checks the other direction (one language against the union of all).
@@ -110,9 +110,9 @@ src/main/kotlin/one/epicsoft/gradle/tolgee/
 - **`com.gradle.plugin-publish` 2.2.1** publishes to the Gradle Plugin Portal and adds the Javadoc JAR. Every plugin in
   `gradlePlugin` needs `tags` and a `compatibility(it)` block; the configuration cache is declared because the
   functional test runs with it.
-- **`LIC:plugin`, `SEC:plugin` and `DEP:plugin` run on `main` only** — on pushes and in the pipeline schedule `weekly`
-  (Sundays); a tag publishes without them. They check the runtime dependencies, the JARs the plugin brings into a
-  consumer's build, which `BLD:plugin` exports with `runtimeDependencies`:
+- **`LIC:plugin`, `SEC:plugin`, `DEP:plugin` and `UPG:gradle` run on `main` only** — on pushes and in the pipeline
+  schedule `weekly` (Sundays); a tag publishes without them. The first three check the runtime dependencies, the JARs
+  the plugin brings into a consumer's build, which `BLD:plugin` exports with `runtimeDependencies`:
   - `LIC:plugin`: `checkLicense` (`com.github.jk1.dependency-license-report` 3.1.4) against `allowed-licenses.json`,
     permissive licenses only. The task is not configuration-cache compatible; Gradle discards the entry.
   - `SEC:plugin`: OWASP dependency-check, fails from CVSS 5. The NVD data come from a central database through the
@@ -120,6 +120,9 @@ src/main/kotlin/one/epicsoft/gradle/tolgee/
     does not run.
   - `DEP:plugin`: `ci/dependency-updates.init.gradle` applies the newest depcheck plugin from the Gradle Plugin Portal
     without making it part of the build; `failOnUpdates`, `allow_failure`.
+  - `UPG:gradle`: every task the pipeline uses (`build runtimeDependencies checkLicense publishToMavenLocal`) with
+    `--warning-mode=fail` — a deprecated Gradle feature shows up before the next Gradle major removes it; problems
+    report as artifact, `allow_failure`.
 
 ## Releasing
 
