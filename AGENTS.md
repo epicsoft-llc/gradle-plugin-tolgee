@@ -119,7 +119,9 @@ src/main/kotlin/one/epicsoft/gradle/tolgee/
     protected `ESN_DEPCHECK_*` variables, only the runners tagged `epicsoft` reach it; without the variables the job
     does not run.
   - `DEP:plugin`: `ci/dependency-updates.init.gradle` applies the newest depcheck plugin from the Gradle Plugin Portal
-    without making it part of the build; `failOnUpdates`, `allow_failure`.
+    or depcheck's public package registry (which has a release before the Portal has reviewed it), without making it
+    part of the build; `failOnUpdates`, `allow_failure`. The artifact `epicsoft-gradle-plugin-depcheck` exists from
+    depcheck 0.5.1 on.
   - `UPG:gradle`: every task the pipeline uses (`build runtimeDependencies checkLicense publishToMavenLocal`) with
     `--warning-mode=fail` — a deprecated Gradle feature shows up before the next Gradle major removes it; problems
     report as artifact, `allow_failure`.

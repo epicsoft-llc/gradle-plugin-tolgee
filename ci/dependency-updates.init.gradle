@@ -2,6 +2,8 @@
 initscript {
   repositories {
     gradlePluginPortal()
+    // depcheck's public package registry has every release before the Plugin Portal has reviewed it
+    maven { url = "https://gitlab.com/api/v4/projects/82634030/packages/maven" }
   }
   dependencies {
     classpath "one.epicsoft:epicsoft-gradle-plugin-depcheck:latest.release"
