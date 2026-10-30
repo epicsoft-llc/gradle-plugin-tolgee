@@ -13,6 +13,7 @@ nothing is missing in the fallback language.
 | Main class | `one.epicsoft.gradle.tolgee.TolgeePlugin` |
 | Tasks | `pullTranslations`, `verifyTranslations` |
 | Repository | developed on `gitlab.com/epicsoft-networks/gradle-plugin-tolgee` (branch `main` only), mirrored to `github.com/epicsoft-llc/gradle-plugin-tolgee` |
+| Plugin Portal | `plugins.gradle.org/plugin/one.epicsoft.tolgee`, since 1.1.2 |
 
 ## Rules
 
@@ -35,6 +36,7 @@ nothing is missing in the fallback language.
 ```bash
 ./gradlew build    # compile, validate the plugin, run the tests
 ./gradlew test     # tests only
+./gradlew publishPlugins --validate-only   # checks the Plugin Portal metadata, uploads nothing
 ```
 
 The tests cover the export URL, the JSON handling and the tasks end to end via `GradleRunner` against a local HTTP
@@ -103,6 +105,9 @@ src/main/kotlin/one/epicsoft/gradle/tolgee/
   created a new cache archive. The test report is kept even when the build fails.
 - **The publishing block exists only when `CI_JOB_TOKEN` is set.** That is why a local build never asks for
   credentials — outside CI the repository simply does not exist.
+- **`com.gradle.plugin-publish` 2.2.1** publishes to the Gradle Plugin Portal and adds the Javadoc JAR. Every plugin in
+  `gradlePlugin` needs `tags` and a `compatibility(it)` block; the configuration cache is declared because the
+  functional test runs with it.
 
 ## Releasing
 
@@ -110,16 +115,21 @@ src/main/kotlin/one/epicsoft/gradle/tolgee/
 
 1. Raise `version` in `gradle.properties`
 2. Update the version in the README (plugin block)
-3. `CHANGELOG.md`: an entry is headed by its date until the release, then `## [X.Y.Z] - <date>` — never `[Unreleased]`
+3. `CHANGELOG.md`: the entry goes under `## [X.Y.Z] - <date>` of the coming release — never `[Unreleased]`, never a
+   bare date
 4. Tag `X.Y.Z` on `main` and push it — **no leading `v`**
 
 The tag *is* the version; the `PUB:plugin` job publishes it to the GitLab package registry, authenticated with
-`CI_JOB_TOKEN`. The job rule only matches `X.Y.Z` or `X.Y.Z.W`; any other tag publishes nothing.
+`CI_JOB_TOKEN`, and `PUB:portal` to the Gradle Plugin Portal with the CI variables `GRADLE_PUBLISH_KEY` and
+`GRADLE_PUBLISH_SECRET` (masked, protected), which plugin-publish reads itself. A new plugin id waits for a manual
+review on the Portal; a version there cannot be replaced. The job rules only match `X.Y.Z` or `X.Y.Z.W`; any other tag
+publishes nothing.
 
 **GitHub:** the repository reaches GitHub through a GitLab push mirror. After publishing, `REL:github` (image
 `epicsoft/ci:latest`) creates the release: it waits for the tag on GitHub, takes the text from the `CHANGELOG.md`
 section `## [X.Y.Z]` and attaches the JARs. It needs the CI variable `GITHUB_TOKEN` (masked, protected) — the tags are
 protected (`*.*.*`), otherwise the job would not see the token. Without a changelog entry for the tag the job fails.
 
-Registry project id: **85970987**, the repository is public. Consumers add
-`https://gitlab.com/api/v4/projects/85970987/packages/maven` to their `settings.gradle`.
+Registry project id: **85970987**, the repository is public. Since 1.1.2 consumers need no repository (Gradle Plugin
+Portal); releases up to 1.1.1 are only in the registry, via `https://gitlab.com/api/v4/projects/85970987/packages/maven`
+in their `settings.gradle`.

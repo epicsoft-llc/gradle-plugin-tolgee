@@ -15,12 +15,14 @@ ships no runtime library, and it never hooks itself into your build lifecycle un
 
 ## Usage
 
-### 1. Declare the plugin repository
+### 1. Plugin repository
 
-The plugin is published to a GitLab package registry that is readable without credentials:
+From 1.1.2 on the plugin is on the [Gradle Plugin Portal](https://plugins.gradle.org/plugin/one.epicsoft.tolgee), which
+Gradle asks by default — there is nothing to declare. Every release, the older ones included, is also in a GitLab package
+registry that is readable without credentials:
 
 ```groovy
-// settings.gradle
+// settings.gradle — only needed for releases up to 1.1.1
 pluginManagement {
   repositories {
     gradlePluginPortal()
@@ -34,7 +36,7 @@ pluginManagement {
 ```groovy
 // build.gradle
 plugins {
-  id "one.epicsoft.tolgee" version "1.1.1"
+  id "one.epicsoft.tolgee" version "1.1.2"
 }
 
 tolgee {
@@ -138,6 +140,7 @@ assemble.dependsOn pullTranslations
 ```bash
 ./gradlew build    # compile, validate the plugin, run the tests
 ./gradlew test     # tests only
+./gradlew publishPlugins --validate-only   # checks the Plugin Portal metadata, uploads nothing
 ```
 
 Requires a Gradle daemon on Java 25. Consuming projects may target any Java version.
@@ -165,11 +168,15 @@ src/main/kotlin/one/epicsoft/gradle/tolgee/
 
 1. Raise `version` in `gradle.properties`
 2. Update the version in this README (plugin block above)
-3. Head the `CHANGELOG.md` entry with `## [X.Y.Z] - <date>` (until then it carries its date alone)
+3. Head the `CHANGELOG.md` entry with `## [X.Y.Z] - <date>` of the coming release — never `[Unreleased]`, never a
+   bare date
 4. Tag that commit on `main` with `X.Y.Z` — no leading `v` — and push the tag;
-   the CI publishes that version and creates the GitHub release with the `CHANGELOG.md` entry and the JARs
+   the CI publishes that version to the GitLab package registry and the Gradle Plugin Portal and creates the GitHub
+   release with the `CHANGELOG.md` entry and the JARs
 
-Work happens on `main`, and every tag sits there.
+Work happens on `main`, and every tag sits there. Publishing to the Portal needs the CI variables `GRADLE_PUBLISH_KEY`
+and `GRADLE_PUBLISH_SECRET` (masked, protected); a version there cannot be replaced, and a new plugin id waits for a
+manual review.
 
 ### Optional package mirror
 

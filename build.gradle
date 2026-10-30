@@ -5,17 +5,26 @@ plugins {
   // "incompatible version of Kotlin" at compile time.
   id "org.jetbrains.kotlin.jvm" version "2.4.21"
   id "maven-publish"
+  id "com.gradle.plugin-publish" version "2.2.1"
 }
 
 group = "one.epicsoft"
 
 gradlePlugin {
+  website = "https://gitlab.com/epicsoft-networks/gradle-plugin-tolgee"
+  vcsUrl = "https://gitlab.com/epicsoft-networks/gradle-plugin-tolgee.git"
   plugins {
     create("tolgee") {
       id = "one.epicsoft.tolgee"
       displayName = "Epicsoft Tolgee Translation Export"
       description = "Exports translations of a Tolgee project into flat JSON files and verifies the fallback language"
+      tags.addAll("tolgee", "translations", "i18n", "localization", "json")
       implementationClass = "one.epicsoft.gradle.tolgee.TolgeePlugin"
+      compatibility(it) {
+        features {
+          configurationCache = true
+        }
+      }
     }
   }
 }

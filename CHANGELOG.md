@@ -4,6 +4,16 @@ All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 the versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.2] - 2026-10-30
+
+### Added
+- Published to the [Gradle Plugin Portal](https://plugins.gradle.org/plugin/one.epicsoft.tolgee), so
+  `plugins { id "one.epicsoft.tolgee" }` needs no repository. The GitLab package registry keeps receiving every release
+- Javadoc JAR next to the plugin and sources JARs
+
+### Changed
+- Built with Gradle 9.8.2 and Kotlin 2.4.21
+
 ## [1.1.1] - 2026-09-28
 
 ### Added
